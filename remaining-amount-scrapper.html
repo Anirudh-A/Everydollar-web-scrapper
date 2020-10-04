@@ -40,13 +40,6 @@
       $(this)
         .find(".BudgetItemRow")
         .each(function (index1) {
-          //check if value is negative
-          var moneySign = $(this).find(".money-sign");
-          if (moneySign) {
-            moneySign = true;
-          } else {
-            moneySign = false;
-          }
           var moneyInteger = $(this).find(".money-integer").eq(0).text();
           var moneyFractional = $(this).find(".money-fractional").eq(0).text();
 
@@ -54,7 +47,14 @@
           moneyInteger = moneyInteger.replace(",", "");
 
           var total = parseInt(moneyInteger) + parseInt(moneyFractional) / 100;
-          finalComputedAnswer += total;
+
+          //check if value is negative
+          var moneySign = $(this).find(".money-sign");
+          if (moneySign) {
+            finalComputedAnswer -= total;
+          } else {
+            finalComputedAnswer += total;
+          }
         });
     });
 
