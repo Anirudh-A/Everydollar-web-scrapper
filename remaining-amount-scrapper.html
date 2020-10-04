@@ -50,10 +50,13 @@
 
           //check if value is negative
           var moneySign = $(this).find(".money-sign");
-          if (moneySign) {
-            finalComputedAnswer -= total;
-          } else {
+          console.log(moneySign);
+          if (moneySign.length === 0) {
             finalComputedAnswer += total;
+            console.log("\t\t+", total);
+          } else {
+            finalComputedAnswer -= total;
+            console.log("\t\t-", total);
           }
         });
     });
