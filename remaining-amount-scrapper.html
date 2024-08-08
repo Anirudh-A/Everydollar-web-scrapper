@@ -1,23 +1,48 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+  <title>Everydollar webscrapper</title>
+  <style>
+    body {
+      background-color: #cacaca;
+    }
+    table {
+      font-family: arial, sans-serif;
+      border-collapse: collapse;
+    }
+
+    td,
+    th {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+    }
+  </style>
   <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8" />
+  </head>
+  <body>
     <h1>
       Compute your net worth, according to the information on your everydollar
     </h1>
     <p>Adds up the 'Remaining' column on each group and returns their sum.</p>
     <p>
-      Just copy the &lt;body&gt;&lt;/body&gt; section from everydollar and
-      replace the &lt;body&gt;&lt;/body&gt; on this script.
+      Just copy the &lt;body&gt;&lt;/body&gt; section from everydollar and paste
+      that in the comment below on this script.
     </p>
-    <h5>
-      The sum of all 'Remaining' column values is <span class="answer"></span>
-    </h5>
 
-    <p>Heaps of UI, documentation and hosting updates incoming.</p>
-  </head>
-
-  <!-- Paste the body below -->
-
+    <h6>Heaps of UI, documentation and hosting updates incoming.</h6>
+    <div class="summary">
+      <h4>Ignoring all transactions containing the word </h4>
+      <h2>        
+        The sum of all 'Remaining' column values is <span class="answer"></span>
+      </h2>
+      <table></table>
+    </div>
+  </body>
+  <div style="display: none">
+    <!-- Paste the body below -->
+  </div>
   <!-- Ani's script -->
   <script
     src="https://code.jquery.com/jquery-3.5.1.min.js"
@@ -26,20 +51,40 @@
   ></script>
   <script>
     var finalComputedAnswer = 0;
+    var ignoreEntriesContaining = "NOTHING TO IGNORE RIGHT NOW";
 
     // main DOM element which has all my data
     var mainGroupClass = ".Budget-budgetGroup--draggable";
 
-    $(mainGroupClass).each(function (index) {
+    $(mainGroupClass).each(function () {
       // Print category name
-      console.log(
-        $(this).find(".BudgetGroupHeader-CardTab").eq(0).children().eq(1).text()
+      print(
+        1,
+        $(this)
+          .find(".BudgetGroupHeader-CardTab")
+          .eq(0)
+          .children()
+          .eq(1)
+          .text(),
+        ""
       );
 
       // fetch each row of the category
       $(this)
         .find(".BudgetItemRow")
-        .each(function (index1) {
+        .each(function () {
+          if (
+            $(this)
+              .find(".BudgetItem-label")
+              .html()
+              .includes(ignoreEntriesContaining)
+          ) {
+            return;
+          }
+
+          var rowResultToLog =
+            $(this).find(".BudgetItem-label")[0]?.dataset?.text;
+
           var moneyInteger = $(this).find(".money-integer").eq(0).text();
           var moneyFractional = $(this).find(".money-fractional").eq(0).text();
 
@@ -48,19 +93,33 @@
 
           var total = parseInt(moneyInteger) + parseInt(moneyFractional) / 100;
 
+          var sign;
+
           //check if value is negative
           var moneySign = $(this).find(".money-sign");
-          console.log(moneySign);
           if (moneySign.length === 0) {
             finalComputedAnswer += total;
-            console.log("\t\t+", total);
+            sign = total;
           } else {
             finalComputedAnswer -= total;
-            console.log("\t\t-", total);
+            sign = "-" + total;
           }
+
+          print(2, rowResultToLog, sign);
         });
     });
 
-    $(".answer").text(finalComputedAnswer);
+    $(".answer").text(Math.round(finalComputedAnswer));
+    $(".summary h4").append('\'' + ignoreEntriesContaining + '\'');
+    function print(columnNumber, b, c) {
+      console.log(columnNumber);
+      var html = `    
+        <tr style="${columnNumber === 1 ? "background-color: #dddddd" : ""}">
+          <td>${columnNumber === 1 ? b : ""}</td>
+          <td>${columnNumber === 2 ? b : ""}</td>
+          <td>${c}</td>
+        </tr>`;
+      $(".summary table").before(html);
+    }
   </script>
 </html>
